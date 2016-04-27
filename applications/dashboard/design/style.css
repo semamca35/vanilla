@@ -2394,7 +2394,7 @@ a.ChangePicture {
   display: block;
 }
 
-a.ChangePicture:hover {
+a.ChangePicuture:hover {
   color: #fff;
   text-decoration: underline;
 }
@@ -3137,6 +3137,12 @@ tr.CategoryHeading td {
   background: rgba(0, 0, 0, 0.03);
   margin: 0;
   padding: 20px;
+}
+
+.Popup .FormWrapper {
+  background: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .FormWrapper-Condensed {
