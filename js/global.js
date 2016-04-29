@@ -120,23 +120,24 @@
             $(this)[func]($elem);
             $elem.trigger('contentLoad');
         });
+        return this;
     };
 
     $.fn.extend({
         appendTrigger: function(html) {
-            funcTrigger.call(this, 'append', html);
+            return funcTrigger.call(this, 'append', html);
         },
 
         beforeTrigger: function(html) {
-            funcTrigger.call(this, 'before', html);
+            return funcTrigger.call(this, 'before', html);
         },
 
         afterTrigger: function(html) {
-            funcTrigger.call(this, 'after', html);
+            return funcTrigger.call(this, 'after', html);
         },
 
         prependTrigger: function(html) {
-            funcTrigger.call(this, 'prepend', html);
+            return funcTrigger.call(this, 'prepend', html);
         },
 
         htmlTrigger: function(html) {
@@ -144,7 +145,7 @@
         },
 
         replaceWithTrigger: function(html) {
-            funcTrigger.call(this, 'html', html);
+            return funcTrigger.call(this, 'replaceWith', html);
         }
     });
 
@@ -1205,13 +1206,29 @@ jQuery(document).ready(function($) {
 
     var d = new Date();
     var hourOffset = -Math.round(d.getTimezoneOffset() / 60);
+    var tz = false;
+
+    /**
+     * ECMAScript Internationalization API is supported by all modern browsers, with the exception of Safari.  We use
+     * it here, with lots of careful checking, to attempt to fetch the user's current IANA time zone string.
+     */
+    if (typeof Intl === 'object' && typeof Intl.DateTimeFormat === 'function') {
+        var dateTimeFormat = Intl.DateTimeFormat();
+        if (typeof dateTimeFormat.resolvedOptions === 'function') {
+            var resolvedOptions = dateTimeFormat.resolvedOptions();
+            if (typeof resolvedOptions === 'object' && typeof resolvedOptions.timeZone === 'string') {
+                tz = resolvedOptions.timeZone;
+            }
+        }
+    }
 
     // Ajax/Save the ClientHour if it is different from the value in the db.
     var setHourOffset = parseInt(gdn.definition('SetHourOffset', hourOffset));
-    if (hourOffset !== setHourOffset) {
+    var setTimeZone = gdn.definition('SetTimeZone', tz);
+    if (hourOffset !== setHourOffset || (tz && tz !== setTimeZone)) {
         $.post(
             gdn.url('/utility/sethouroffset.json'),
-            {HourOffset: hourOffset, TransientKey: gdn.definition('TransientKey')}
+            {HourOffset: hourOffset, TimeZone: tz, TransientKey: gdn.definition('TransientKey')}
         );
     }
 
