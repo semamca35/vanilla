@@ -149,6 +149,25 @@
         }
     });
 
+    $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+        if (typeof jqXHR.responseJSON === "object") {
+            var response = jqXHR.responseJSON;
+            var errorClass = response.Class || false;
+            var errorCode = response.Code || false;
+            var exception = response.Exception || false;
+
+            if (errorClass === "Gdn_UserException") {
+                switch (exception) {
+                    case "Invalid CSRF token.":
+                        var csrfToken = jqXHR.getResponseHeader("X-XSRF-Token");
+                        if (csrfToken) {
+                            gdn.setMeta("TransientKey", csrfToken);
+                        }
+                        break;
+                }
+            }
+        }
+    });
 })(window, jQuery);
 
 // Stuff to fire on document.ready().

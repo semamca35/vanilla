@@ -806,6 +806,9 @@ class PostController extends VanillaController {
                 }
             }
         } elseif ($this->Request->isPostBack()) {
+            if (Gdn::session()->isValid()) {
+                $this->setHeader('X-XSRF-Token', Gdn::session()->transientKey());
+            }
             throw new Gdn_UserException('Invalid CSRF token.', 401);
         } else {
             // Load form
