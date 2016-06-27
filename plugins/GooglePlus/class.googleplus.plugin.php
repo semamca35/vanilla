@@ -151,6 +151,9 @@ class GooglePlusPlugin extends Gdn_Plugin {
      * @return mixed
      */
     public function socialSharing() {
+        if (c('Vanilla.SocialStyling', false)) {
+            return true;
+        }
         return c('Plugins.GooglePlus.SocialSharing', true);
     }
 
@@ -160,6 +163,9 @@ class GooglePlusPlugin extends Gdn_Plugin {
      * @return mixed
      */
     public function socialReactions() {
+        if (c('Vanilla.SocialStyling', false)) {
+            return true;
+        }
         return c('Plugins.GooglePlus.SocialReactions', true);
     }
 

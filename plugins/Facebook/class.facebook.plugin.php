@@ -719,6 +719,9 @@ class FacebookPlugin extends Gdn_Plugin {
      * @return bool
      */
     public function socialSignIn() {
+        if (c('Vanilla.SocialStyling', false)) {
+            return true;
+        }
         return c('Plugins.Facebook.SocialSignIn', true) && $this->isConfigured();
     }
 
@@ -728,10 +731,16 @@ class FacebookPlugin extends Gdn_Plugin {
      * @return bool
      */
     public function socialSharing() {
+        if (c('Vanilla.SocialStyling', false)) {
+            return true;
+        }
         return c('Plugins.Facebook.SocialSharing', true) && $this->isConfigured();
     }
 
     public function socialReactions() {
+        if (c('Vanilla.SocialStyling', false)) {
+            return true;
+        }
         return c('Plugins.Facebook.SocialReactions', true) && $this->isConfigured();
     }
 

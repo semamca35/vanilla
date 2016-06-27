@@ -779,6 +779,9 @@ class TwitterPlugin extends Gdn_Plugin {
      * @return bool
      */
     public function socialSharing() {
+        if (c('Vanilla.SocialStyling', false)) {
+            return true;
+        }
         return c('Plugins.Twitter.SocialSharing', true) && $this->isConfigured();
     }
 
@@ -788,6 +791,9 @@ class TwitterPlugin extends Gdn_Plugin {
      * @return bool
      */
     public function socialReactions() {
+        if (c('Vanilla.SocialStyling', false)) {
+            return true;
+        }
         return c('Plugins.Twitter.SocialReactions', true) && $this->isConfigured();
     }
 
@@ -797,6 +803,9 @@ class TwitterPlugin extends Gdn_Plugin {
      * @return bool
      */
     public function socialSignIn() {
+        if (c('Vanilla.SocialStyling', false)) {
+            return true;
+        }
         return c('Plugins.Twitter.SocialSignIn', true) && $this->isConfigured();
     }
 
