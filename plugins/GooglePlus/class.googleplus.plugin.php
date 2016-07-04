@@ -461,7 +461,7 @@ class GooglePlusPlugin extends Gdn_Plugin {
      * @param Gdn_Controller $Sender
      */
     public function entryController_signIn_handler($Sender, $Args) {
-        if (!$this->isConfigured()) {
+        if (!$this->isConfigured() && !c('Vanilla.SocialStyling', false)) {
             return;
         }
 
