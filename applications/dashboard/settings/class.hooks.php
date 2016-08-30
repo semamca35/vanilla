@@ -33,19 +33,37 @@ class DashboardHooks implements Gdn_IPlugin {
                 $Sender->Form->setStyles('bootstrap');
             }
 
-            $Sender->removeJsFile('jquery.popup.js');
+            $Sender->CssClass = htmlspecialchars($Sender->CssClass);
+            $Sections = Gdn_Theme::section(null, 'get');
+            if (is_array($Sections)) {
+                foreach ($Sections as $Section) {
+                    $Sender->CssClass .= ' Section-'.$Section;
+                }
+            }
+
+            // Get our plugin nav items.
+            $navAdapter = new NestedCollectionAdapter(DashboardNavModule::getDashboardNav());
+            $Sender->EventArguments['SideMenu'] = $navAdapter;
+            $Sender->fireEvent('GetAppSettingsMenuItems');
+
+            // Don't remove until all pages that invoke popup in their js have reconciled with the new modals.
+            // i.e., moderation pages
+//            $Sender->removeJsFile('jquery.popup.js');
             $Sender->addJsFile('dashboard.js', 'dashboard');
             $Sender->addJsFile('jquery.expander.js');
             $Sender->addJsFile('settings.js', 'dashboard');
             $Sender->addJsFile('vendors/tether.min.js', 'dashboard');
             $Sender->addJsFile('vendors/util.js', 'dashboard');
             $Sender->addJsFile('vendors/drop.min.js', 'dashboard');
+            $Sender->addJsFile('vendors/moment.js', 'dashboard');
+            $Sender->addJsFile('vendors/daterangepicker.js', 'dashboard');
             $Sender->addJsFile('vendors/tooltip.js', 'dashboard');
             $Sender->addJsFile('vendors/clipboard.min.js', 'dashboard');
             $Sender->addJsFile('vendors/dropdown.js', 'dashboard');
             $Sender->addJsFile('vendors/collapse.js', 'dashboard');
             $Sender->addJsFile('vendors/modal.js', 'dashboard');
             $Sender->addJsFile('vendors/icheck.min.js', 'dashboard');
+            $Sender->addJsFile('jquery.tablejengo.js', 'dashboard');
             $Sender->addJsFile('vendors/jquery-scrolltofixed-min.js', 'dashboard');
             $Sender->addJsFile('vendors/prettify/prettify.js', 'dashboard');
             $Sender->addJsFile('vendors/ace/ace.js', 'dashboard');
@@ -184,7 +202,7 @@ class DashboardHooks implements Gdn_IPlugin {
         $themeOptionsName = c('Garden.ThemeOptions.Name');
         $mobileThemeOptionsName = c('Garden.MobileThemeOptions.Name');
 
-        $sort = -1;
+        $sort = -1; // Ensure these nav items come before any plugin nav items.
 
         $nav->addGroupToSection('Moderation', t('Site'), 'site')
             ->addLinkToSectionIf('Garden.Community.Manage', 'Moderation', t('Messages'), '/dashboard/message', 'site.messages', '', $sort)
@@ -224,8 +242,8 @@ class DashboardHooks implements Gdn_IPlugin {
             ->addLinkIf('Garden.Settings.Manage', t('Outgoing Email'), '/dashboard/settings/email', 'site-settings.email', '', $sort)
             ->addLinkIf('Garden.Settings.Manage', t('Routes'), '/dashboard/routes', 'site-settings.routes', '', $sort)
             ->addLinkIf('Garden.Settings.Manage', t('Statistics'), '/dashboard/statistics', 'site-settings.statistics', '', $sort)
-            ->addGroupIf('Garden.Settings.Manage', t('Import'), 'import', '', ['after' => 'site-settings'])
-            ->addLinkIf('Garden.Settings.Manage', t('Import'), '/dashboard/import', 'import.import', '', $sort);
+            ->addGroupIf('Garden.Settings.Manage', t('Forum Data'), 'forum-data', '', ['after' => 'site-settings'])
+            ->addLinkIf('Garden.Settings.Manage', t('Import'), '/dashboard/import', 'forum-data.import', '', $sort);
     }
 
     /**
@@ -388,6 +406,21 @@ class DashboardHooks implements Gdn_IPlugin {
         $hasPermissions = Gdn::sql()->getWhere('Permission', array('RoleID >' => 0))->firstRow(DATASET_TYPE_ARRAY);
         if (!$hasPermissions) {
             PermissionModel::resetAllRoles();
+        }
+    }
+
+    /**
+     * Add user's viewable roles to gdn.meta if user is logged in.
+     * @param $sender
+     * @param $args
+     */
+    public function gdn_dispatcher_afterControllerCreate_handler($sender, $args) {
+        // Function addDefinition returns the value of the definition if you pass only one argument.
+        if (!gdn::controller()->addDefinition('Roles')) {
+            if (Gdn::session()->isValid()) {
+                $roleModel = new RoleModel();
+                gdn::controller()->addDefinition("Roles", $roleModel->getPublicUserRoles(gdn::session()->UserID, "Name"));
+            }
         }
     }
 }

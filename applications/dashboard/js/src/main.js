@@ -60,6 +60,7 @@
             textarea.hide();
 
             var editor = ace.edit('editor-' + formID);
+            editor.$blockScrolling = Infinity;
             editor.getSession().setMode('ace/mode/' + mode);
             editor.setTheme('ace/theme/clouds');
 
@@ -177,7 +178,6 @@
 
             // request the target via ajax
             var ajaxData = {'DeliveryType' : 'VIEW', 'DeliveryMethod' : 'JSON'};
-            console.log(self.settings.httpmethod);
             if (self.settings.httpmethod === 'post') {
                 ajaxData.TransientKey = gdn.definition('TransientKey');
             }
@@ -197,6 +197,9 @@
                         setTimeout(function() {
                             document.location.replace(json.RedirectUrl);
                         }, 300);
+                    } else {
+                        $('#' + self.id).modal('hide');
+                        self.afterConfirmSuccess();
                     }
                     $('#' + self.id).modal('hide');
                     self.afterConfirmSuccess();
@@ -212,6 +215,7 @@
                 this.trigger.closest('.js-modal-item').remove();
             }
 
+            // Refresh the page.
             if (!found) {
                 document.location.replace(window.location.href);
             }
@@ -502,7 +506,6 @@
         });
 
         $('.panel-left', element).on('drawer.show', function() {
-            console.log('shown');
             $('.panel-nav .js-scroll-to-fixed').trigger('detach.ScrollToFixed');
             $('.panel-nav .js-scroll-to-fixed').css('position', 'initial');
             window.scrollTo(0, 0);
@@ -528,7 +531,7 @@
 
 
     function icheckInit(element) {
-        var selector = 'input:not(.label-selector-input):not(.toggle-input):not(.avatar-delete-input)';
+        var selector = 'input:not(.label-selector-input):not(.toggle-input):not(.avatar-delete-input):not(.jcrop-keymgr)';
 
         $(selector, element).iCheck({
             aria: true
@@ -559,23 +562,63 @@
         }
     }
 
+    function responsiveTablesInit(element) {
+        $('.table-wrap table:not(.CheckBoxGrid)', element).tablejengo({container: '#main-row .main'});
+    }
+
+    function pinToolTips() {
+        var options = {
+            title: 'Pin to your dashboard',
+            trigger: 'hover',
+            placement: 'left',
+            delay: {
+                show: 100
+            }
+        };
+
+        $('.analytics-widget-chart .bookmark:not(.bookmarked)').tooltip(options).on('click', function() {
+            $(this).tooltip('hide');
+        });
+
+        options['placement'] = 'top';
+
+        $('.analytics-widget-metric .bookmark:not(.bookmarked)').tooltip(options).on('click', function() {
+            $(this).tooltip('hide');
+        });
+
+        options['title'] = 'Unpin from your dashboard';
+
+        $('.analytics-widget-metric .bookmarked').tooltip(options).on('click', function() {
+            $(this).tooltip('hide');
+        });
+
+        options['placement'] = 'left';
+
+        $('.analytics-widget-chart .bookmarked').tooltip(options).on('click', function() {
+            $(this).tooltip('hide');
+        });
+
+
+    }
+
     $(document).on('contentLoad', function(e) {
-        prettyPrintInit(e.target);
-        aceInit(e.target);
-        collapseInit(e.target);
-        scrollToFixedInit(e.target);
-        userDropDownInit(e.target);
-        modalInit();
-        clipboardInit();
-        drawerInit(e.target);
-        icheckInit(e.target);
-        expanderInit(e.target);
-
+        prettyPrintInit(e.target); // prettifies <pre> blocks
+        aceInit(e.target); // code editor
+        collapseInit(e.target); // panel nav collapsind
+        scrollToFixedInit(e.target); // panel and navbar scroll settings and modal fixed header and footer
+        userDropDownInit(e.target); // navbar 'me' dropdown
+        modalInit(); // modals (aka popups)
+        clipboardInit(); // copy elements to the clipboard
+        drawerInit(e.target); // responsive hamburger menu nav
+        icheckInit(e.target); // checkboxes and radios
+        expanderInit(e.target); // truncates text and adds link to expand
+        responsiveTablesInit(e.target); // makes tables responsive
+        pinToolTips(); // tooltips for analytics page
     });
 
-    $(document).on('c3Init', function() {
-
-    });
+    // $(document).on('c3Init', function() {
+    //
+    // });
 
 
     // $(document).on('click', '.js-collapse-toggle', function() {
@@ -588,6 +631,58 @@
     $(document).on('shown.bs.collapse', function() {
         $('.panel-nav .js-scroll-to-fixed').trigger('detach.ScrollToFixed');
         scrollToFixedInit($('.panel-nav'));
+    });
+
+    $(document).on('click', '.js-save-pref-collapse', function() {
+        var key = $(this).data('key');
+        var collapsed = !$(this).hasClass('collapsed');
+
+        // request the target via ajax
+        var ajaxData = {'DeliveryType' : 'VIEW', 'DeliveryMethod' : 'JSON'};
+
+        ajaxData.TransientKey = gdn.definition('TransientKey');
+        ajaxData.key = key;
+        ajaxData.collapsed = collapsed;
+
+        $.ajax({
+            method: 'POST',
+            url: gdn.url('dashboard/userpreferencecollapse'),
+            data: ajaxData,
+            dataType: 'json',
+            error: function(xhr) {
+                gdn.informError(xhr);
+            },
+            success: function(json) {
+                gdn.inform(json);
+                gdn.processTargets(json.Targets);
+            }
+        });
+    });
+
+    $(document).on('click', '.js-save-pref-section', function() {
+        var url = $(this).attr('href');
+        var section = $(this).data('section');
+
+        // request the target via ajax
+        var ajaxData = {'DeliveryType' : 'VIEW', 'DeliveryMethod' : 'JSON'};
+
+        ajaxData.TransientKey = gdn.definition('TransientKey');
+        ajaxData.url = url;
+        ajaxData.section = section;
+
+        $.ajax({
+            method: 'POST',
+            url: gdn.url('dashboard/userpreferencesectionlandingpage'),
+            data: ajaxData,
+            dataType: 'json',
+            error: function(xhr) {
+                gdn.informError(xhr);
+            },
+            success: function(json) {
+                gdn.inform(json);
+                gdn.processTargets(json.Targets);
+            }
+        });
     });
 
     $(document).on('change', '.js-file-upload', function() {
@@ -636,3 +731,11 @@
     });
 
 })(jQuery);
+
+// Render svg icons. Icon must exist in applications/dashboard/views/symbols.php
+var dashboardSymbol = function(name, cssClass) {
+    if (!cssClass) {
+        cssClass = '';
+    }
+    return '<svg class="icon ' + cssClass + ' icon-svg-' + name + '" viewBox="0 0 17 17"><use xlink:href="#' + name + '" /></svg>';
+};

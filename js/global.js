@@ -342,7 +342,7 @@ jQuery(document).ready(function($) {
         //$('a.Popup').popup();
         //$('a.PopConfirm').popup({'confirm' : true, 'followConfirm' : true});
 
-        $('a.Popup:not(.Message a.Popup, .Dashboard a.Popup)').popup();
+        $('a.Popup:not(.Message a.Popup):not(.dashboard a.Popup)').popup();
         $('a.PopConfirm:not(.Message a.PopConfirm)').popup({'confirm': true, 'followConfirm': true});
     }
 
@@ -2057,7 +2057,7 @@ jQuery(window).load(function() {
         }
     }(jQuery));
 
-    jQuery('div.Message img').each(function(i, img) {
+    jQuery('div.Message img').not(jQuery('div.Message a > img')).each(function(i, img) {
         img = jQuery(img);
         var container = img.closest('div.Message');
         if (img.naturalWidth() > container.width() && container.width() > 0) {

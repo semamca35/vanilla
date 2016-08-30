@@ -757,10 +757,10 @@ class EditorPlugin extends Gdn_Plugin {
 
             // Determine if image, and thus requires thumbnail generation, or simply saving the file.
             // Not all files will be images.
-            $thumbHeight = null;
-            $thumbWidth = null;
-            $imageHeight = null;
-            $imageWidth = null;
+            $thumbHeight = '';
+            $thumbWidth = '';
+            $imageHeight = '';
+            $imageWidth = '';
             $thumbPathParsed = array('SaveName' => '');
             $thumbUrl = '';
 
@@ -1336,7 +1336,7 @@ class EditorPlugin extends Gdn_Plugin {
             'Garden.MobileInputFormatter' => array('LabelCode' => 'Mobile Format', 'Control' => 'DropDown', 'Description' => '<p>Specify an editing format for mobile devices. If mobile devices should have the same experience, specify the same one as above. If users report issues with mobile editing, this is a good option to change.</p>', 'Items' => $Formats, 'DefaultValue' => c('Garden.MobileInputFormatter'))
         ));
 
-        $Sender->addSideMenu();
+        
         $Sender->setData('Title', t('Advanced Editor Settings'));
         $Cf->renderAll();
     }
@@ -1397,8 +1397,7 @@ class EditorPlugin extends Gdn_Plugin {
         }
 
         // Get actual path to the file.
-        $upload = new Gdn_UploadImage();
-        $local_path = $upload->copyLocal(val('Path', $media));
+        $local_path = Gdn_Upload::copyLocal($media['Path']);
         if (!file_exists($local_path)) {
             throw notFoundException('File');
         }

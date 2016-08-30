@@ -176,6 +176,21 @@ pre {
   }
 }
 
+.subheading-block {
+  padding-top: $spacer;
+  padding-bottom: $spacer;
+  border-top: $border-width solid $grey-light;
+
+  @extend .full-border;
+
+  .subheading {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: to-rem(16);
+    font-weight: 500;
+  }
+}
+
 .header-menu {
   $header-menu-border-width: to-rem(3);
   $header-menu-font-size: to-rem(18);
@@ -186,6 +201,7 @@ pre {
   justify-content: center;
   align-items: center;
   @extend .full-border;
+  border-bottom-color: $grey-dark-border;
 
   &.padded {
     margin-bottom: $spacer;
@@ -267,4 +283,61 @@ form {
 
 .list-unstyled {
   @include list-unstyled;
+}
+
+// The modal js wraps the modal body and footer in a form element to place the form buttons in the footer.
+// The side-effect of this is that some non-form elements can be wrapped in a form. This rather inelegant
+// list-un-reset can be applied to any lists appearing in a modal that are not actually part of the form and should
+// have list styling.
+.modal .list-un-reset {
+  ul,
+  ol {
+    margin-left: 15px;
+  }
+  ul li {
+    list-style: disc inside;
+  }
+  ol li {
+    list-style: decimal inside;
+  }
+  ul ul,
+  ol ul {
+    margin-left: 30px;
+    li {
+      list-style: circle inside;
+    }
+  }
+  ol ol,
+  ul ol {
+    margin-left: 15px;
+    li {
+      list-style: lower-latin inside;
+    }
+  }
+}
+
+.italic {
+  font-style: italic;
+}
+
+.truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+// same color and size as default body text.
+.icon-text {
+  width: $font-size-base;
+  fill: $grey-dark;
+  vertical-align: middle;
+}
+
+
+.reverse-link {
+  color: $grey-dark;
+
+  &:hover {
+    color: $brand-primary;
+  }
 }

@@ -47,8 +47,8 @@
   .options {
     float: right;
     fill: $icon-color;
-    margin-top: -$tree-padding - 1px;
-    margin-right: -$tree-padding;
+    //margin-top: -$tree-padding - 1px;
+    //margin-right: -$tree-padding;
   }
 
   .OptionsTitle {
@@ -120,16 +120,6 @@
 .SpFlyoutHandle,
 .DropHandle {
   border-top-color: $icon-color;
-}
-
-.icon {
-  display: inline-block;
-  vertical-align: middle;
-}
-
-.icon-16 {
-  height: 16px;
-  width: 16px;
 }
 
 .bigcrumbs {

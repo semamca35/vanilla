@@ -16,6 +16,7 @@ $PluginInfo['OpenID'] = array(
     'MobileFriendly' => true,
     'SettingsUrl' => '/settings/openid',
     'SettingsPermission' => 'Garden.Settings.Manage',
+    'SocialConnect' => true,
     'Author' => "Todd Burry",
     'AuthorEmail' => 'todd@vanillaforums.com',
     'AuthorUrl' => 'http://www.vanillaforums.org/profile/todd',
@@ -315,7 +316,7 @@ class OpenIDPlugin extends Gdn_Plugin {
             'Plugins.OpenID.DisableSignIn' => array('Control' => 'Toggle', 'LabelCode' => 'Disable OpenID sign in', 'Default' => false)
         ));
 
-        $Sender->addSideMenu();
+        
         $Sender->setData('Title', sprintf(t('%s Settings'), t('OpenID')));
         $Sender->ConfigurationModule = $Conf;
         $Conf->renderAll();

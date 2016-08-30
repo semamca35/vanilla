@@ -12,7 +12,7 @@ $PluginInfo['VanillaStats'] = array(
     'Name' => 'Vanilla Statistics',
     'Description' => 'Adds helpful graphs and information about activity on your forum over time (new users, discussions, comments, and pageviews).',
     'Version' => '2.0.6',
-    'MobileFriendly' => false,
+    'MobileFriendly' => true,
     'RequiredApplications' => array('Vanilla' => '2.0.18'),
     'Author' => "Vanilla Staff",
     'AuthorEmail' => 'support@vanillaforums.com',
@@ -125,7 +125,7 @@ class VanillaStatsPlugin extends Gdn_Plugin {
         $sender->RequiredAdminPermissions[] = 'Garden.Users.Approve';
         $sender->fireEvent('DefineAdminPermissions');
         $sender->permission($sender->RequiredAdminPermissions, '', false);
-        $sender->addSideMenu('dashboard/settings');
+        $sender->setHighlightRoute('dashboard/settings');
 
         if (!Gdn_Statistics::checkIsEnabled() && Gdn_Statistics::checkIsLocalhost()) {
             $sender->render('dashboardlocalhost', '', 'plugins/VanillaStats');
@@ -137,7 +137,7 @@ class VanillaStatsPlugin extends Gdn_Plugin {
             $sender->addJsFile('picker.js', 'plugins/VanillaStats');
             $sender->addJsFile('d3.min.js');
             $sender->addJsFile('c3.min.js');
-            
+
             $sender->addDefinition('VanillaID', Gdn::installationID());
             $sender->addDefinition('AuthToken', Gdn_Statistics::generateToken());
 
@@ -179,7 +179,7 @@ class VanillaStatsPlugin extends Gdn_Plugin {
             ->orderBy('d.CountViews', 'desc')
             ->orderBy('d.CountComments', 'desc')
             ->orderBy('d.CountBookmarks', 'desc')
-            ->limit(10, 0)
+            ->limit(5, 0)
             ->get());
 
         // Load the most active users during this date range
@@ -192,7 +192,7 @@ class VanillaStatsPlugin extends Gdn_Plugin {
             ->where('c.DateInserted >=', $range['from'])
             ->where('c.DateInserted <=', $range['to'])
             ->orderBy('CountComments', 'desc')
-            ->limit(10, 0)
+            ->limit(5, 0)
             ->get());
 
         // Render the custom dashboard view

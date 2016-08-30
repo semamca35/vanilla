@@ -26,3 +26,25 @@
     margin-right: 0;
   }
 }
+
+.crop-label {
+  display: none;
+}
+
+.main .content .control-panel {
+  display: none;
+}
+
+@include media-breakpoint-down(md) {
+  .main .content .control-panel {
+    display: block;
+  }
+}
+
+.CurrentTheme {
+  padding-left: 0;
+}
+
+.filter-date {
+  min-width: to-rem(184);
+}

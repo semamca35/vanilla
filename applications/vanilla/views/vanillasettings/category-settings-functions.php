@@ -65,10 +65,9 @@ EOT;
 }
 
 function writeCategoryOptions($category) {
-    $cdd = new DropdownModule('');
-
-    $cdd->setTrigger(displayAsSymbol($category['DisplayAs']), 'span')
-        ->setForceDivider(true);
+    $cdd = new DropdownModule('', displayAsSymbol($category['DisplayAs']), 'dropdown-category-options', 'dropdown-menu-right');
+    $cdd->setView('dropdown-twbs');
+    $cdd->setForceDivider(true);
 
     $cdd->addGroup('', 'edit')
         ->addLink(t('Edit'), url("/vanilla/settings/editcategory?categoryid={$category['CategoryID']}"), 'edit.edit');

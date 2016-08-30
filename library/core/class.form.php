@@ -54,7 +54,7 @@ class Gdn_Form extends Gdn_Pluggable {
             'radio' => '',
             'radio-container' => 'radio',
             'smallbutton' => 'btn btn-sm',
-            'textbox' => 'form-control',
+            'textarea' => 'form-control',
             'dropdown' => 'form-control',
             'input-wrap' => 'input-wrap',
             'form-group' => 'form-group row',
@@ -2795,6 +2795,11 @@ PASSWORDMETER;
                 case 'checkboxlist':
                     $Result .= $Description
                         .wrap($this->checkBoxList($Row['Name'], $Row['Items'], null, $Row['Options']), 'div', ['class' => 'input-wrap']);
+                    break;
+                case 'imageupload':
+                    $Result .= $this->label($LabelCode, $Row['Name'])
+                        .$Description
+                        .$this->imageUpload($Row['Name'], $Row['Options']);
                     break;
                 case 'textbox':
                     $Row['Options']['Wrap'] = true;

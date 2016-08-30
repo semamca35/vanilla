@@ -626,13 +626,64 @@ class CategoryModel extends Gdn_Model {
      *
      * @param int|string $id The parent category ID or slug.
      * @param array $options See {@link CategoryCollection::getTree()}.
+     * @param string $permission The permission to check to see which categories to get.
      * @return array Returns an array of categories with child categories in the **Children** key.
      */
-    public function getChildTree($id, $options = []) {
+    public function getChildTree($id, $depth = 3, $permission = 'PermsDiscussionsView') {
         $category = $this->getOne($id);
 
-        return $this->collection->getTree((int)val('CategoryID', $category), $options);
+        $tree = $this->collection->getTree((int)val('CategoryID', $category), $depth, $permission);
+        self::filterChildren($tree);
+        return $tree;
     }
+
+    /**
+     * @param int|string $id The parent category ID or slug.
+     * @param int|bool $offset
+     * @param int|bool $limit
+     * @return array
+     */
+    public function getTreeAsFlat($id, $offset = null, $limit = null) {
+        $categoryTree = $this->getWhere(
+            [
+                'DisplayAs <>' => 'Heading',
+                'ParentCategoryID' => $id
+            ],
+            'DateInserted',
+            'desc',
+            $limit,
+            $offset
+        )->resultArray();
+        self::calculateData($categoryTree);
+        self::joinUserData($categoryTree);
+
+        foreach ($categoryTree as &$category) {
+            // Fix the depth to be relative, not global.
+            $category['Depth'] = 1;
+
+            // We don't have children, but trees are expected to have this key.
+            $category['Children'] = [];
+        }
+
+        return $categoryTree;
+    }
+
+    /**
+     * Recursively remove children from categories configured to display as "Categories" or "Flat".
+     *
+     * @param array $categories
+     * @param string $childField
+     */
+    public static function filterChildren(&$categories, $childField = 'Children') {
+        foreach ($categories as &$category) {
+            $children = &$category[$childField];
+            if (in_array($category['DisplayAs'], ['Categories', 'Flat'])) {
+                    $children = [];
+                } elseif (!empty($children)) {
+                    static::filterChildren($children);
+                }
+         }
+      }
 
     /**
      * Filter a category tree to only the followed categories.
@@ -1486,11 +1537,13 @@ class CategoryModel extends Gdn_Model {
         if ($parent === null) {
             return [];
         }
-        $categories = self::instance()->collection->getTree(
-            $parent['CategoryID'],
-            ['depth' => 10, 'permission' => '']
-        );
-        $categories = self::instance()->flattenTree($categories);
+
+        if (val('DisplayAs', $parent) === 'Flat') {
+            $categories = self::instance()->getTreeAsFlat($parent['CategoryID']);
+        } else {
+            $categories = self::instance()->collection->getTree($parent['CategoryID'], 10, '');
+            $categories = self::instance()->flattenTree($categories);
+        }
 
         if ($includeParent) {
             $parent['Depth'] = 1;
@@ -1736,7 +1789,7 @@ class CategoryModel extends Gdn_Model {
         if ($Root) {
             $Result = self::instance()->collection->getTree(
                 (int)val('CategoryID', $Root),
-                ['depth' => self::instance()->getMaxDisplayDepth() ?: 10]
+                self::instance()->getMaxDisplayDepth() ?: 10
             );
             self::instance()->joinRecent($Result);
         } else {
@@ -1766,14 +1819,17 @@ class CategoryModel extends Gdn_Model {
         }
 
         $Result = array();
-        foreach ($Category['ChildIDs'] as $ID) {
-            if (!isset($Categories[$ID])) {
-                continue;
+        $childIDs = val('ChildIDs', $Category);
+        if (is_array($childIDs) && count($childIDs)) {
+            foreach ($childIDs as $ID) {
+                if (!isset($Categories[$ID])) {
+                    continue;
+                }
+                $Row = (array)$Categories[$ID];
+                $Row['Depth'] += $DepthAdj;
+                $Row['Children'] = self::_MakeTreeChildren($Row, $Categories);
+                $Result[] = $Row;
             }
-            $Row = (array)$Categories[$ID];
-            $Row['Depth'] += $DepthAdj;
-            $Row['Children'] = self::_MakeTreeChildren($Row, $Categories);
-            $Result[] = $Row;
         }
         return $Result;
     }

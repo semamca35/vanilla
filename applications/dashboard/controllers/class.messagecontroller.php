@@ -94,7 +94,7 @@ class MessageController extends DashboardController {
         $this->addJsFile('messages.js');
 
         $this->permission('Garden.Community.Manage');
-        $this->addSideMenu('dashboard/message');
+        $this->setHighlightRoute('dashboard/message');
 
         // Generate some Controller & Asset data arrays
         $this->setData('Locations', $this->_getLocationData());
@@ -145,11 +145,12 @@ class MessageController extends DashboardController {
      */
     public function index() {
         $this->permission('Garden.Community.Manage');
-        $this->addSideMenu('dashboard/message');
+        $this->setHighlightRoute('dashboard/message');
         $this->addJsFile('jquery.autosize.min.js');
         $this->addJsFile('jquery.tablednd.js');
         $this->addJsFile('messages.js');
         $this->title(t('Messages'));
+        Gdn_Theme::section('Moderation');
 
         // Load all messages from the db
         $this->MessageData = $this->MessageModel->get('Sort');

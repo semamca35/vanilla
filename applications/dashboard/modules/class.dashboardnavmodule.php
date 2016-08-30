@@ -18,43 +18,58 @@ class DashboardNavModule extends SiteNavModule {
     public $view = 'nav-dashboard';
 
     /**
+     * @var DashboardNavModule The dashboard nav instance.
+     */
+    protected static $dashboardNav;
+
+    /**
      * @var array The section info for the dashboard's main nav.
      */
     protected static $sectionsInfo = [
         'DashboardHome' => [
             'section' => 'DashboardHome',
             'title' => 'Dashboard',
-            'description' => 'Forum Overview',
-            'url' => '/settings'
+            'description' => 'Site Overview',
+            'url' => '/settings',
+            'empty' => true
         ],
         'Moderation' => [
             'section' => 'Moderation',
             'title' => 'Moderation',
-            'description' => 'Gate Keeping',
+            'description' => 'Community Management',
             'url' => '/dashboard/log/moderation',
             'permission' => 'Garden.Moderation.Manage'
         ],
         'Settings' => [
             'section' => 'Settings',
             'title' => 'Settings',
-            'description' => 'Preferences & Addons',
+            'description' => 'Configuration & Addons',
             'url' => '/dashboard/settings/banner'
         ]
     ];
 
     protected static $altSectionsInfo = [
-        'Tutorials' => [
-            'section' => 'Tutorials',
-            'title' => 'Help',
-            'description' => '',
-            'url' => '/dashboard/settings/gettingstarted'
-        ]
+//        'Tutorials' => [
+//            'section' => 'Tutorials',
+//            'title' => 'Help',
+//            'description' => '',
+//            'url' => '/dashboard/settings/gettingstarted'
+//        ]
     ];
 
     public function __construct($cssClass = '', $useCssPrefix = true) {
-        self::$altSectionsInfo['Tutorials']['title'] = dashboardSymbol('question-mark');
+//        self::$altSectionsInfo['Tutorials']['title'] = dashboardSymbol('question-mark');
         parent::__construct($cssClass, $useCssPrefix);
-        $this->setHighlightRoute(url('', false));
+    }
+
+    /**
+     * @return DashboardNavModule
+     */
+    public static function getDashboardNav() {
+        if (!isset(self::$dashboardNav)) {
+            self::$dashboardNav = new DashboardNavModule();
+        }
+        return self::$dashboardNav;
     }
 
     /**
@@ -70,6 +85,8 @@ class DashboardNavModule extends SiteNavModule {
             $this->fireEvent('init');
         }
 
+        $this->handleUserPreferencesSection();
+
         $sections = $alt ? self::$altSectionsInfo : self::$sectionsInfo;
 
         $session = Gdn::session();
@@ -80,13 +97,24 @@ class DashboardNavModule extends SiteNavModule {
                 $section['title'] = t($section['title']);
                 $section['description'] = t($section['description']);
                 $section['url'] = url($section['url']);
-                $section['active'] = $this->isActive($section['section']) ? 'active' : '';
+                $section['active'] = $this->isActiveSection($section['section']) ? 'active' : '';
             }
         }
         return $sections;
     }
 
-    public function isActive($section) {
+    private function getActiveSection() {
+        $allSections = array_merge(self::$sectionsInfo, self::$altSectionsInfo);
+        $currentSections = Gdn_Theme::section('', 'get');
+        foreach ($currentSections as $currentSection) {
+            if (array_key_exists($currentSection, $allSections )) {
+                return $currentSection;
+            }
+        }
+        return self::ACTIVE_SECTION_DEFAULT;
+    }
+
+    private function isActiveSection($section) {
 
         $allSectionsInfo = array_merge(self::$sectionsInfo, self::$altSectionsInfo);
         $allSections = [];
@@ -106,13 +134,48 @@ class DashboardNavModule extends SiteNavModule {
             }
         }
 
-        // We're active if the section is 'Settings' and the $current section doesn't exist in allsections
-
+        // We're active if the section is 'Settings' and the $currentSection doesn't exist in allsections
         if (!$found && $section == self::ACTIVE_SECTION_DEFAULT) {
             return true;
         }
 
         return false;
+    }
+
+    private function handleUserPreferencesNav() {
+        if ($session = Gdn::session()) {
+            $collapsed = $session->getPreference('DashboardNav.Collapsed');
+            $section = $this->getActiveSection();
+
+            foreach($this->items as &$item) {
+                if (array_key_exists(val('headerCssClass', $item), $collapsed)) {
+                    $item['collapsed'] = 'collapsed';
+                    $item['ariaExpanded'] = 'false';
+                    $item['collapsedList'] = '';
+                } else {
+                    $item['collapsed'] = '';
+                    $item['ariaExpanded'] = 'true';
+                    $item['collapsedList'] = 'in';
+                }
+                if (isset($item['items'])) {
+                    foreach($item[items] as &$subitem) {
+                        $subitem['section'] = $section;
+                    }
+                }
+            }
+        }
+    }
+
+    private function handleUserPreferencesSection() {
+        if ($session = Gdn::session()) {
+            $landingPages = $session->getPreference('DashboardNav.SectionLandingPages');
+
+            foreach (self::$sectionsInfo as $key => $section) {
+                if (array_key_exists($key, $landingPages)) {
+                    self::$sectionsInfo[$key]['url'] = $landingPages[$key];
+                }
+            }
+        }
     }
 
     /**
@@ -130,6 +193,21 @@ class DashboardNavModule extends SiteNavModule {
             }
         }
         self::$sectionsInfo[$section['section']] = $section;
+    }
+
+    public function handleEmpty() {
+        $section = $this->getActiveSection();
+        $section = val($section, self::$sectionsInfo);
+        if (val('empty', $section) === true) {
+            $this->items = [];
+        }
+    }
+
+    public function prepare() {
+        parent::prepare();
+        $this->handleEmpty();
+        $this->handleUserPreferencesNav();
+        return true;
     }
 
     public function toString() {

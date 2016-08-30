@@ -18,7 +18,7 @@ $black: #000;
 // Override the grays
 $gray-dark:                 #555a62;
 $gray:                      lighten(#555a62, 25%);
-$gray-light:                #f4f4f5;
+$gray-light:                #f6f9fb;
 $gray-lighter:              #f4f6fb;
 $gray-lightest:             #fbfcfc;
 
@@ -28,6 +28,9 @@ $grey:                      $gray;
 $grey-light:                $gray-light;
 $grey-lighter:              $gray-lighter;
 $grey-lightest:             $gray-lightest;
+
+$grey-dark-border:          #ededed; // belongs between grey and grey-light.
+$grey-light-text:           #727d83; // belongs between grey and grey-dark.
 
 $brand-primary:             #0291db;
 $brand-secondary:           #f5296d;
@@ -73,10 +76,10 @@ $font-size-xs:               .675rem;
 
 $font-size-h1:               2rem;
 $font-size-h2:               1.125rem;
-$font-size-h3:               1.125rem;
-$font-size-h4:               1.125rem;
-$font-size-h5:               1.125rem !default;
-$font-size-h6:               1rem !default;
+$font-size-h3:               1rem;
+$font-size-h4:               1rem;
+$font-size-h5:               .925rem;
+$font-size-h6:               .875rem;
 
 $display1-size:               6rem !default;
 $display2-size:               5.5rem !default;
@@ -145,6 +148,8 @@ $btn-padding-y:                  $control-padding-y;
 $btn-font-weight:                normal !default;
 $btn-line-height:                1;
 
+$btn-min-width:                  to-rem(96);
+
 $btn-primary-color:              $brand-primary;
 $btn-primary-bg:                 $white;
 $btn-primary-border:             $btn-primary-color !default;
@@ -169,7 +174,7 @@ $btn-danger-color:               #fff !default;
 $btn-danger-bg:                  $brand-danger !default;
 $btn-danger-border:              $btn-danger-bg !default;
 
-$btn-link-disabled-color:        $grey;
+$btn-link-disabled-color:        $grey-dark-border;
 
 $btn-padding-x-sm:               .75rem;
 $btn-padding-y-sm:               .125rem;
@@ -218,7 +223,7 @@ $nav-navbar-active-link-active-bg:          #0cb0f8;
 // Checkbox toggles
 $toggle-border-width:                       $border-width;
 $toggle-height:                             $control-height-rem;
-$toggle-padding:                            $toggle-height / 32;
+$toggle-padding:                            to-rem(2);
 
 // Padding
 $padding-default:                           $grid-gutter-width / 2;
@@ -255,6 +260,16 @@ $grid-breakpoints: (
   // Extra large screen / wide desktop
   xl: 1200px
 ) !default;
+
+
+$icon-sizes: (
+  9: 9,
+  12: 12,
+  16: 16,
+  24: 24,
+  30: 30,
+  48: 48
+);
 
 // Dropdowns
 $dropdown-font-size: 14px !default;
@@ -302,7 +317,6 @@ $alert-border-radius:            0;
 //Drawer
 
 $drawer-width:                   222px;
-
 
 $modal-inner-padding:            to-rem(18);
 

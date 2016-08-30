@@ -14,7 +14,8 @@
   }
 }
 
-table {
+// not date picker table. kludge. should style on classname instead.
+table:not(.table-condensed) {
   width: 100%;
   max-width: 100%;
   margin-bottom: 0;
@@ -57,6 +58,7 @@ table {
       font-size: $font-size-sm;
       line-height: $line-height-lg;
       vertical-align: middle;
+      white-space: nowrap;
 
       &:last-child {
         border-right: 0;
@@ -98,6 +100,7 @@ table {
   }
 }
 
+
 .attach-top td {
   // Hovering bg color doesn't really work here
   border-top: 0;
@@ -129,7 +132,7 @@ table {
 
     td {
       text-align: center;
-      padding: ($spacer / 2) ($spacer * .75);
+      padding: ($spacer / 2) ($spacer / 2);
       border: 1px solid #eee;
       border-top: 1px solid #ddd;
       text-transform: uppercase;
@@ -137,6 +140,7 @@ table {
       font-size: $font-size-sm;
       line-height: $line-height-lg;
       vertical-align: middle;
+      width: 10%;
 
       &:last-child {
         border-right: 0;
@@ -145,6 +149,9 @@ table {
 
     th {
       font-weight: 700;
+      max-width: to-rem(180);
+      min-width: to-rem(180);
+      @extend .truncate;
     }
   }
 
@@ -242,6 +249,7 @@ table {
       @include media-breakpoint-down(md) {
         max-width: inherit;
         width: 100%;
+        padding-left: $spacer 0;
       }
     }
   }
@@ -314,4 +322,32 @@ table {
       @extend .media-sm-info;
     }
   }
+}
+
+.tj-meta {
+  margin-top: ($spacer / 2);
+
+  .table-meta-item {
+    font-size: $font-size-sm;
+  }
+
+  .table-meta-item-data {
+
+  }
+
+  .table-meta-item-label {
+    font-weight: 500;
+
+    // Disable links in labels.
+    a {
+      color: $grey-dark;
+      pointer-events: none;
+      cursor: default;
+    }
+  }
+}
+
+
+.content-cell {
+  min-width: to-rem(200);
 }
