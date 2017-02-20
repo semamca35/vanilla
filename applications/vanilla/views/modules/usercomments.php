@@ -14,7 +14,7 @@ if (sizeof($this->data('Comments'))) {
             <?php $this->fireEvent('BeforeItemContent'); ?>
             <div class="ItemContent">
                 <div class="Message">
-                    <h2><?php echo anchor(Gdn_Format::text($comment->DiscussionName), $permalink); ?></h2>
+                    <h2><?php echo anchor(Gdn_Format::plainText($comment->DiscussionName), $permalink); ?></h2>
                     <?php
                     echo SliceString(Gdn_Format::plainText($comment->Body, $comment->Format), 250);
                     ?></div>
